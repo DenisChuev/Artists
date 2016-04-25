@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/action_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always|collapseActionView"/>
+
+    <item
+        android:id="@+id/action_sort_ascending"
+        android:icon="@drawable/ic_action_sort_ascending"
+        android:title="@string/action_sort_ascending"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_sort_by_name_ascending"
+                    android:title="@string/action_sort_by_name"/>
+                <item
+                    android:id="@+id/action_sort_by_albums_ascending"
+                    android:title="@string/action_sort_by_albums"/>
+                <item
+                    android:id="@+id/action_sort_by_tracks_ascending"
+                    android:title="@string/action_sort_by_tracks"/>
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/action_sort_descending"
+        android:icon="@drawable/ic_action_sort_descending"
+        android:title="@string/action_sort_descending"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_sort_by_name_descending"
+                    android:title="@string/action_sort_by_name"/>
+                <item
+                    android:id="@+id/action_sort_by_albums_descending"
+                    android:title="@string/action_sort_by_albums"/>
+                <item
+                    android:id="@+id/action_sort_by_tracks_descending"
+                    android:title="@string/action_sort_by_tracks"/>
+            </group>
+        </menu>
+    </item>
+</menu>

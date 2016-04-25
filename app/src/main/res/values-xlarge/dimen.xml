@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="big_text_size">@dimen/abc_text_size_headline_material</dimen>
+    <dimen name="main_text_size">@dimen/abc_text_size_large_material</dimen>
+    <dimen name="small_margin">16dp</dimen>
+    <dimen name="big_margin">32dp</dimen>
+</resources>

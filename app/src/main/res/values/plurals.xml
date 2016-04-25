@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <plurals name="tracks">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> песня</item>
+        <item quantity="few"><xliff:g id="count">%d</xliff:g> песни</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> песен</item>
+    </plurals>
+
+    <plurals name="albums">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> альбом</item>
+        <item quantity="few"><xliff:g id="count">%d</xliff:g> альбома</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> альбомов</item>
+    </plurals>
+</resources>

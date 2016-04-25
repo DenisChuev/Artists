@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">@string/artists</string>
+    <string name="artists">Исполнители</string>
+    <string name="biography">Биография</string>
+    <string name="network_error">Ошибка сети! Проверьте своё соединение!</string>
+    <string name="action_sort_ascending">Сортировка по возрастанию</string>
+    <string name="action_sort_descending">Сортировка по убыванию</string>
+    <string name="action_sort_by_name">по имени</string>
+    <string name="action_sort_by_tracks">по количеству песен</string>
+    <string name="action_sort_by_albums">по количеству альбомов</string>
+    <string name="action_search">Поиск артиста</string>
+    <string name="action_link">Официальный сайт</string>
+</resources>
