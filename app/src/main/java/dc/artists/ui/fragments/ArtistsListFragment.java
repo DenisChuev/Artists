@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.BuildConfig;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,8 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -42,9 +43,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.widget.Toast.LENGTH_SHORT;
-import static android.widget.Toast.makeText;
-
 public class ArtistsListFragment extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "ArtistsListFragment";
@@ -55,7 +53,9 @@ public class ArtistsListFragment extends Fragment
     private RecyclerView mArtistsRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ArtistsAdapter mArtistsAdapter;
-    private Toast mToast;
+    private Snackbar mSnackBar;
+    private ProgressBar mProgressBar;
+    private View mView;
 
     public static ArtistsListFragment newInstance() {
         return new ArtistsListFragment();
@@ -72,22 +72,27 @@ public class ArtistsListFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
+        mView = inflater.inflate(R.layout.fragment_artists_list, container, false);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_list);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) mView.findViewById(R.id.refresh_list);
         mSwipeRefreshLayout.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE, Color.CYAN);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        mArtistsRecyclerView = (RecyclerView) view.findViewById(R.id.fragment_artists_list_recycler_view);
+        mProgressBar = (ProgressBar) mView.findViewById(R.id.progress_bar);
+
+        mArtistsRecyclerView = (RecyclerView) mView.findViewById(R.id.fragment_artists_list_recycler_view);
         mArtistsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mArtistsRecyclerView.setHasFixedSize(true);
 
         updateArtistItems(URL);
 
-        return view;
+        return mView;
     }
 
     private void updateArtistItems(String url) {
+        mArtistsRecyclerView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
+        hideMessage();
         if (mArtistsStore.isEmpty()) {
             if (isFirstStartup()) {
                 if (BuildConfig.DEBUG) {
@@ -107,7 +112,7 @@ public class ArtistsListFragment extends Fragment
                 new DownloadCacheTask(url).execute();
             }
         } else {
-            setupAdapter();
+            setupAdapter(mArtistsStore.getArtistItems());
         }
     }
 
@@ -116,8 +121,6 @@ public class ArtistsListFragment extends Fragment
     }
 
     private void downloadArtistItems(final String url) throws Exception {
-        mSwipeRefreshLayout.setRefreshing(true);
-
         final ArtistsService artistsService = RestClient.get().getService();
 
         final Call<List<ArtistItem>> call = artistsService.getArtistItems();
@@ -141,7 +144,7 @@ public class ArtistsListFragment extends Fragment
                     }
                     showErrorMessage();
                 }
-                setupAdapter();
+                setupAdapter(mArtistsStore.getArtistItems());
             }
 
             @Override
@@ -149,37 +152,48 @@ public class ArtistsListFragment extends Fragment
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "download failed", t);
                 }
-                setupAdapter();
+                setupAdapter(mArtistsStore.getArtistItems());
                 showErrorMessage();
             }
         });
     }
 
     private void showErrorMessage() {
-        mSwipeRefreshLayout.setRefreshing(false);
-        showToast(R.string.network_error);
+        showMessage(R.string.network_error);
     }
 
-    private void showToast(int message) {
-        if (null != mToast) {
-            mToast.cancel();
+    private void showMessage(int message) {
+        hideMessage();
+
+        if (null == mView) {
+            return;
         }
-        mToast = makeText(getActivity(), message, LENGTH_SHORT);
-        mToast.show();
+
+        mSnackBar = Snackbar
+                .make(mView, message, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.action_update, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        updateArtistItems(URL);
+                    }
+                });
+        mSnackBar.show();
     }
 
-    private void setupAdapter() {
-        if (isAdded() && (null != mArtistsRecyclerView)) {
-            mArtistsAdapter = new ArtistsAdapter(mArtistsStore.getArtistItems());
-            mSwipeRefreshLayout.setRefreshing(false);
-            mArtistsRecyclerView.setAdapter(mArtistsAdapter);
+    private void hideMessage() {
+        if (null != mSnackBar) {
+            mSnackBar.dismiss();
         }
     }
 
     private void setupAdapter(List<ArtistItem> artistItems) {
         if (isAdded() && (null != mArtistsRecyclerView)) {
+            mProgressBar.setVisibility(View.GONE);
+            mArtistsRecyclerView.setVisibility(View.VISIBLE);
             mSwipeRefreshLayout.setRefreshing(false);
-            mArtistsRecyclerView.setAdapter(new ArtistsAdapter(artistItems));
+            hideMessage();
+            mArtistsAdapter = new ArtistsAdapter(artistItems);
+            mArtistsRecyclerView.setAdapter(mArtistsAdapter);
         }
     }
 
@@ -208,6 +222,7 @@ public class ArtistsListFragment extends Fragment
                     Log.d(TAG, query);
                 }
                 QueryPreferences.setStoredQuery(getActivity(), query);
+                mArtistsAdapter.getFilter().filter(query);
                 searchView.clearFocus();
                 return true;
             }
@@ -251,24 +266,18 @@ public class ArtistsListFragment extends Fragment
 
     @Override
     public void onRefresh() {
-        mSwipeRefreshLayout.setRefreshing(true);
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
                 updateArtistItems(URL);
             }
         });
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStop() {
+        super.onStop();
         saveArtistItems(URL, parseToJson(mArtistsStore.getArtistItems()));
     }
 
@@ -312,7 +321,7 @@ public class ArtistsListFragment extends Fragment
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            setupAdapter();
+            setupAdapter(mArtistsStore.getArtistItems());
         }
     }
 
@@ -331,7 +340,7 @@ public class ArtistsListFragment extends Fragment
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            setupAdapter();
+            setupAdapter(mArtistsStore.getArtistItems());
         }
     }
 

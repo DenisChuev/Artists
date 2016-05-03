@@ -138,14 +138,9 @@ public class ArtistFragment extends Fragment implements SwipeRefreshLayout.OnRef
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
                 updateUI();
             }
         });
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
     }
 }

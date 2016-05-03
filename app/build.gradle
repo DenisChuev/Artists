@@ -7,8 +7,8 @@ android {
         applicationId "dc.artists"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
         resConfig "ru"
         //noinspection GroovyAssignabilityCheck
         project.ext.set("archivesBaseName", "Artists-" + defaultConfig.versionName);
@@ -29,6 +29,7 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:support-v4:23.3.0'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:recyclerview-v7:23.3.0'
